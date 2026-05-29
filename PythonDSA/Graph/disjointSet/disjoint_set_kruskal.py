@@ -51,3 +51,25 @@ def UnionByRank(u, v):
         parent[ulp_v] = ulp_u
 
         rank[ulp_u] += 1
+
+
+# Sort edges based on weight
+edges.sort(key=lambda x: x[2])
+
+mst_weight = 0
+mst_edges = []
+
+for u, v, wt in edges:
+
+    if FindUpar(u) != FindUpar(v):
+
+        mst_weight += wt
+        mst_edges.append([u, v, wt])
+
+        UnionByRank(u, v)
+
+print("MST Weight:", mst_weight)
+print("MST Edges:")
+
+for edge in mst_edges:
+    print(edge)
