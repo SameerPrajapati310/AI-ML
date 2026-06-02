@@ -1,3 +1,9 @@
+"""
+Both DFS-based Topological Sort and Kahn's Algorithm are applied to the same type of graph: a Directed Acyclic Graph (DAG). 
+They are simply two different ways to compute a topological ordering.
+
+"""
+
 matrix = [
     [0, 1, 1, 0, 0, 1],
     [0, 0, 1, 1, 0, 0],

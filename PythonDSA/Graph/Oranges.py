@@ -46,5 +46,3 @@ while q:
                     print(grid[i])
                 q.append((nr,nc))
                  
-
-
