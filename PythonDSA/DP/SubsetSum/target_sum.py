@@ -22,3 +22,19 @@ k = 6
 
 dp = [[-1]*(k+1) for _ in range(len(arr))]
 print(find(len(arr)-1, k, arr, dp))
+
+"""
+[1,2,4] k = 3
+
+(2,3)
+  |____(1,3)
+  |    |____(0,3)
+  |       |       |_____False
+  |       |____(0,1)
+  |       |       |_______True
+  |       |______True
+  |____(1,-ve)-> never executed
+  |          |______False
+  |_______True
+
+"""
