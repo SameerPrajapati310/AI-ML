@@ -15,13 +15,9 @@ class BottomView:
         self.find(root.right, row + 1, col + 1, nodes)
     def bottomViewFind(self, root):
         nodes = []
-
         self.find(root, 0, 0, nodes)
-
         nodes.sort()
-
         mp = {}
-
         for col, row, val in nodes:
             mp[col] = val   
         ans = []
