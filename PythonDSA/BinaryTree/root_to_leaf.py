@@ -39,3 +39,4 @@ root.left.right.right = TreeNode(7)
 
 ans = RTL()
 print(ans.rootleaf(root))
+print()
