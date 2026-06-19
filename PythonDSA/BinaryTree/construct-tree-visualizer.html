@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Construct Binary Tree — Recursion Tracer</title>
+<style>
+  :root{
+    --bg:        #0f1318;
+    --surface:   #161c24;
+    --surface-2: #1d2530;
+    --border:    #2a323d;
+    --text:      #e7edf3;
+    --text-dim:  #8b96a3;
+    --amber:     #f2b94b;
+    --teal:      #4fd6c0;
+    --violet:    #b18cf7;
+    --rose:      #f0707a;
+    --sky:       #5db1f0;
+    --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:var(--sans); }
+  body{ padding:22px; }
+  .app{ max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:16px; }
+
+  /* ---------- top bar ---------- */
+  .topbar{ display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px;
+    border-bottom:1px solid var(--border); padding-bottom:14px; }
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); }
+  .topbar h1{ font-size:20px; margin:4px 0 0; font-weight:600; letter-spacing:-.01em; }
+  .topbar-stats{ display:flex; gap:22px; }
+  .stat{ display:flex; flex-direction:column; align-items:flex-end; }
+  .stat-value{ font-family:var(--mono); font-size:22px; font-weight:600; color:var(--amber); line-height:1; }
+  .stat-label{ font-size:10.5px; color:var(--text-dim); margin-top:3px; text-transform:uppercase; letter-spacing:.06em; }
+
+  /* ---------- inputs ---------- */
+  .inputs{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--surface);
+    border:1px solid var(--border); border-radius:10px; padding:10px 14px; }
+  .inputs label{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-dim); font-family:var(--mono); }
+  .inputs input{ background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--mono); font-size:13px; padding:6px 9px; border-radius:6px; width:200px; }
+  .inputs input:focus{ outline:none; border-color:var(--teal); }
+  .inputs button{ background:var(--teal); color:#072420; border:none; font-weight:600; font-size:12.5px;
+    padding:8px 16px; border-radius:6px; cursor:pointer; letter-spacing:.02em; }
+  .inputs button:hover{ filter:brightness(1.08); }
+  .example-btn{ background:transparent !important; color:var(--text-dim) !important; border:1px solid var(--border) !important;
+    padding:7px 12px !important; }
+  .error{ font-size:12px; color:var(--rose); font-family:var(--mono); }
+
+  /* ---------- workspace grid ---------- */
+  .workspace{ display:grid; grid-template-columns: 1.05fr 1fr; gap:16px; }
+  @media (max-width: 880px){ .workspace{ grid-template-columns: 1fr; } }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .panel-head{ font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--text-dim); padding:9px 14px; border-bottom:1px solid var(--border); background:var(--surface-2); }
+
+  /* ---------- code panel ---------- */
+  .code-panel pre{ margin:0; padding:10px 0; }
+  .code-line{ display:flex; gap:12px; padding:2px 14px; font-family:var(--mono); font-size:12.6px;
+    color:var(--text-dim); white-space:pre; transition:background .25s, color .25s; border-left:3px solid transparent; }
+  .code-line .ln{ width:18px; text-align:right; color:#4b5563; flex-shrink:0; user-select:none; }
+  .code-line.blank{ height:8px; }
+  .code-line.active{ background:rgba(242,185,75,.12); color:var(--text); border-left-color:var(--amber); }
+  .code-line.scanning{ background:rgba(79,214,192,.10); }
+  .code-line .code{ color:inherit; }
+  .tok-kw{ color:var(--violet); }
+  .tok-type{ color:var(--sky); }
+  .tok-fn{ color:var(--teal); }
+
+  /* ---------- data panel ---------- */
+  .data-panel{ display:flex; flex-direction:column; }
+  .array-block{ padding:12px 14px; border-bottom:1px solid var(--border); }
+  .array-title{ font-family:var(--mono); font-size:11.5px; color:var(--text-dim); margin-bottom:8px;
+    display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .array-title .hint{ font-size:10px; color:#5a6472; }
+  .array-row{ position:relative; display:flex; gap:5px; flex-wrap:wrap; padding-bottom:18px; }
+  .cell{ position:relative; min-width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:13px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2);
+    color:var(--text-dim); transition:background .2s, color .2s, border-color .2s, opacity .2s; }
+  .cell .idx{ position:absolute; bottom:-16px; left:0; right:0; text-align:center; font-size:9px; color:#4b5563; }
+  .cell.used{ opacity:.4; }
+  .cell.pointer{ border-color:var(--amber); color:var(--text); }
+  .cell.picked{ background:var(--amber); color:#3a2503; border-color:var(--amber); }
+  .cell.in-window{ color:var(--text); }
+  .cell.out-window{ opacity:.32; }
+  .cell.split{ background:var(--amber); color:#3a2503; border-color:var(--amber); }
+  .cell.left-half{ background:rgba(79,214,192,.16); }
+  .cell.right-half{ background:rgba(177,140,247,.16); }
+  .scan-cursor{ position:absolute; top:0; bottom:18px; left:0; width:30px; background:rgba(79,214,192,.55);
+    border-radius:5px; pointer-events:none; opacity:0; }
+  .scan-cursor.sweeping{ opacity:1; transition: left .42s cubic-bezier(.2,.7,.3,1); }
+
+  /* ---------- call stack ---------- */
+  .stack-block{ padding:12px 14px; flex:1; }
+  .call-stack{ display:flex; flex-direction:column-reverse; gap:6px; min-height:40px; }
+  .frame{ font-family:var(--mono); font-size:12px; padding:7px 10px; border-radius:6px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--text-dim); display:flex; justify-content:space-between; gap:8px; }
+  .frame.top{ border-color:var(--amber); color:var(--text); box-shadow:0 0 0 1px rgba(242,185,75,.25); }
+  .frame .range{ color:inherit; }
+  .frame .elem{ color:var(--amber); font-weight:600; }
+  .empty-note{ font-size:12px; color:#4b5563; font-family:var(--mono); }
+
+  /* ---------- tree panel ---------- */
+  .tree-panel{ background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .tree-panel .panel-head{ display:flex; justify-content:space-between; align-items:center; }
+  .legend{ display:flex; gap:14px; font-size:10.5px; color:var(--text-dim); text-transform:none; letter-spacing:0; }
+  .legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  #treeSvg{ display:block; width:100%; height:auto; background:
+    radial-gradient(circle at 20px 20px, rgba(255,255,255,.025) 1px, transparent 1px) 0 0/16px 16px; }
+  .node-circle{ fill:var(--surface-2); stroke:var(--border); stroke-width:1.5; transition:stroke .25s, fill .25s; }
+  .node-circle.active{ stroke:var(--amber); fill:#26200f; }
+  .node-text{ fill:var(--text); font-family:var(--mono); font-size:14px; font-weight:600; text-anchor:middle; dominant-baseline:central; }
+  .edge-line{ stroke:#3a4250; stroke-width:1.6; }
+  .node-enter circle{ animation:popIn .38s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes popIn{ from{ transform:scale(.2); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .edge-enter{ animation:fadeIn .3s ease; }
+  @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
+
+  /* ---------- control bar ---------- */
+  .control-bar{ position:sticky; bottom:8px; background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:12px 16px; display:flex; flex-direction:column; gap:10px; }
+  .narration{ font-size:13px; color:var(--text); min-height:18px; }
+  .narration b{ color:var(--amber); font-weight:600; }
+  .controls{ display:flex; align-items:center; gap:10px; }
+  .controls button{ background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    width:34px; height:30px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .controls button:hover{ border-color:var(--teal); }
+  .controls button:disabled{ opacity:.35; cursor:default; }
+  #playBtn{ width:40px; color:var(--teal); font-weight:700; }
+  #scrubber{ flex:1; accent-color: var(--teal); }
+  #stepCounter{ font-family:var(--mono); font-size:11.5px; color:var(--text-dim); min-width:64px; text-align:right; }
+  #speedSelect{ background:var(--surface-2); border:1px solid var(--border); color:var(--text-dim); font-size:11px;
+    border-radius:6px; padding:5px 6px; font-family:var(--mono); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">Recursion Tracer</div>
+      <h1>Construct Binary Tree from Preorder &amp; Inorder Traversal</h1>
+    </div>
+    <div class="topbar-stats">
+      <div class="stat"><span class="stat-value" id="statCalls">0</span><span class="stat-label">construct() calls</span></div>
+      <div class="stat"><span class="stat-value" id="statComparisons">0</span><span class="stat-label">find() comparisons</span></div>
+    </div>
+  </header>
+
+  <section class="inputs">
+    <label>preorder <input id="preorderInput" value="3,9,20,15,7" /></label>
+    <label>inorder <input id="inorderInput" value="9,3,15,20,7" /></label>
+    <button id="buildBtn">Build</button>
+    <button class="example-btn" id="exampleBtn">Use example</button>
+    <span class="error" id="inputError"></span>
+  </section>
+
+  <main class="workspace">
+    <div class="panel code-panel">
+      <div class="panel-head">solution.cpp</div>
+      <pre id="codeBlock"></pre>
+    </div>
+
+    <div class="panel data-panel">
+      <div class="array-block">
+        <div class="array-title">preorder <span class="hint">idx → next element consumed</span></div>
+        <div class="array-row" id="preorderArray"></div>
+      </div>
+      <div class="array-block">
+        <div class="array-title">inorder <span class="hint" id="inorderHint">[start, end] of active call</span></div>
+        <div class="array-row" id="inorderArray"><div class="scan-cursor" id="scanCursor"></div></div>
+      </div>
+      <div class="stack-block">
+        <div class="array-title">call stack <span class="hint">bottom → top, top = active</span></div>
+        <div class="call-stack" id="callStack"></div>
+      </div>
+    </div>
+  </main>
+
+  <section class="tree-panel">
+    <div class="panel-head">
+      <span>Tree under construction</span>
+      <span class="legend">
+        <span><span class="dot" style="background:var(--amber)"></span> active node</span>
+        <span><span class="dot" style="background:var(--teal)"></span> left half</span>
+        <span><span class="dot" style="background:var(--violet)"></span> right half</span>
+      </span>
+    </div>
+    <svg id="treeSvg" viewBox="0 0 800 360"></svg>
+  </section>
+
+  <footer class="control-bar">
+    <div class="narration" id="narration">Press “Build” or step forward to begin tracing <b>construct()</b>.</div>
+    <div class="controls">
+      <button id="resetBtn" title="Restart">⏮</button>
+      <button id="prevBtn" title="Previous step">◀</button>
+      <button id="playBtn" title="Play / Pause">▶</button>
+      <button id="nextBtn" title="Next step">▶▶</button>
+      <input id="scrubber" type="range" min="-1" max="-1" value="-1" />
+      <span id="stepCounter">0 / 0</span>
+      <select id="speedSelect">
+        <option value="1000">0.5×</option>
+        <option value="500" selected>1×</option>
+        <option value="240">2×</option>
+        <option value="100">4×</option>
+      </select>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     1. THE SOURCE CODE (rendered + line-highlighted as we trace)
+     ============================================================ */
+  const CODE_LINES = [
+    {n:1,  t:"int find(vector<int> &inorder, int element) {"},
+    {n:2,  t:"    for (int i = 0; i < inorder.size(); i++) {"},
+    {n:3,  t:"        if (inorder[i] == element) {"},
+    {n:4,  t:"            return i;"},
+    {n:5,  t:"        }"},
+    {n:6,  t:"    }"},
+    {n:7,  t:"    return -1;"},
+    {n:8,  t:"}"},
+    {n:9,  t:"", blank:true},
+    {n:10, t:"TreeNode* construct(preorder, inorder, int &idx, int start, int end) {"},
+    {n:11, t:"    if (start > end) return NULL;"},
+    {n:12, t:"    int element = preorder[idx++];"},
+    {n:13, t:"    int i = find(inorder, element);"},
+    {n:14, t:"    TreeNode* root = new TreeNode(element);"},
+    {n:15, t:"    root->left  = construct(preorder, inorder, idx, start, i - 1);"},
+    {n:16, t:"    root->right = construct(preorder, inorder, idx, i + 1, end);"},
+    {n:17, t:"    return root;"},
+    {n:18, t:"}"},
+  ];
+
+  const LINE_FOR_STEP = {
+    call: 11, base_case: 11, pick: 12, found: 13,
+    create_node: 14, attach_left: 15, attach_right: 16, return: 17
+  };
+
+  function escapeHtml(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function renderCode(){
+    const el = document.getElementById("codeBlock");
+    el.innerHTML = CODE_LINES.map(line => {
+      if (line.blank) return '<div class="code-line blank"></div>';
+      return `<div class="code-line" id="line-${line.n}"><span class="ln">${line.n}</span><span class="code">${escapeHtml(line.t)}</span></div>`;
+    }).join("");
+  }
+
+  function highlightLine(n, scanning){
+    document.querySelectorAll(".code-line.active").forEach(e=>e.classList.remove("active"));
+    document.querySelectorAll(".code-line.scanning").forEach(e=>e.classList.remove("scanning"));
+    if (n){
+      const el = document.getElementById("line-"+n);
+      if (el) el.classList.add("active");
+    }
+    if (scanning){
+      for (let i=1;i<=8;i++){
+        const el = document.getElementById("line-"+i);
+        if (el) el.classList.add("scanning");
+      }
+    }
+  }
+
+  /* ============================================================
+     2. BUILD THE STEP TRACE  (mirrors the recursive C++ exactly,
+        including find() scanning the WHOLE inorder array every call)
+     ============================================================ */
+  let steps = [];
+  let preorderVals = [];
+  let inorderVals = [];
+
+  function buildSteps(preorder, inorder){
+    const trace = [];
+    let idx = 0;
+    let callCounter = 0;
+    let nodeCounter = 0;
+
+    function find(element){
+      // Mirrors the given find(): scans the ENTIRE inorder array from 0,
+      // ignoring start/end bounds — this is what makes each call O(n).
+      for (let i=0;i<inorder.length;i++){
+        if (inorder[i] === element) return i;
+      }
+      return -1;
+    }
+
+    function construct(start, end, depth, parentCallId, side){
+      const callId = callCounter++;
+      trace.push({type:"call", callId, start, end, depth, parentCallId, side});
+      if (start > end){
+        trace.push({type:"base_case", callId, depth});
+        return null;
+      }
+      const pickedIdx = idx;
+      const element = preorder[idx];
+      idx++;
+      trace.push({type:"pick", callId, pickedIdx, element, depth});
+
+      const foundIdx = find(element);
+      trace.push({type:"found", callId, foundIdx, element, depth});
+
+      const nodeId = nodeCounter++;
+      trace.push({type:"create_node", callId, nodeId, element, x:foundIdx, y:depth, depth});
+
+      const leftNode = construct(start, foundIdx-1, depth+1, callId, "left");
+      trace.push({type:"attach_left", callId, nodeId, leftNode, depth});
+
+      const rightNode = construct(foundIdx+1, end, depth+1, callId, "right");
+      trace.push({type:"attach_right", callId, nodeId, rightNode, depth});
+
+      trace.push({type:"return", callId, nodeId, depth});
+      return nodeId;
+    }
+
+    construct(0, preorder.length-1, 0, null, null);
+    return trace;
+  }
+
+  /* ============================================================
+     3. REPLAY  — derive full UI state for any step index by
+        replaying the trace from the start (cheap, always correct)
+     ============================================================ */
+  function computeState(uptoIndex){
+    const frames = {};      // callId -> {start,end,depth,parentCallId,side,element,foundIdx,nodeId}
+    const stack = [];       // active callIds, last = top
+    const nodes = {};       // nodeId -> {element,x,y,depth,left?,right?}
+    let preorderPtr = 0;
+    let comparisons = 0;
+    let totalCalls = 0;
+    let lastStep = null;
+
+    for (let k=0;k<=uptoIndex;k++){
+      const s = steps[k];
+      lastStep = s;
+      switch(s.type){
+        case "call":
+          frames[s.callId] = {start:s.start,end:s.end,depth:s.depth,parentCallId:s.parentCallId,side:s.side,
+                               element:null, foundIdx:null, nodeId:null};
+          stack.push(s.callId);
+          totalCalls++;
+          break;
+        case "base_case":
+          stack.pop();
+          break;
+        case "pick":
+          frames[s.callId].element = s.element;
+          preorderPtr = s.pickedIdx + 1;
+          break;
+        case "found":
+          frames[s.callId].foundIdx = s.foundIdx;
+          comparisons += (s.foundIdx + 1);
+          break;
+        case "create_node":
+          nodes[s.nodeId] = {element:s.element, x:s.x, y:s.y, depth:s.depth};
+          frames[s.callId].nodeId = s.nodeId;
+          break;
+        case "attach_left":
+          nodes[s.nodeId].left = s.leftNode;
+          break;
+        case "attach_right":
+          nodes[s.nodeId].right = s.rightNode;
+          break;
+        case "return":
+          stack.pop();
+          break;
+      }
+    }
+    return {frames, stack, nodes, preorderPtr, comparisons, totalCalls, lastStep};
+  }
+
+  /* ============================================================
+     4. NARRATION
+     ============================================================ */
+  function fmt(v){ return "‘" + v + "’"; }
+
+  function sideText(s){
+    if (s.parentCallId === null) return " (the initial call)";
+    if (s.side === "left") return " — left subtree";
+    if (s.side === "right") return " — right subtree";
+    return "";
+  }
+
+  function narrate(state){
+    const s = state.lastStep;
+    if (!s) return 'Press “Build” or step forward to begin tracing <b>construct()</b>.';
+    const f = state.frames[s.callId];
+    switch(s.type){
+      case "call":
+        if (s.start > s.end) return `construct(start=${s.start}, end=${s.end})${sideText(s)} — empty range, will return <b>NULL</b>.`;
+        return `construct(start=${s.start}, end=${s.end})${sideText(s)} is called.`;
+      case "base_case":
+        return `start (${f.start}) &gt; end (${f.end}) — this call returns <b>NULL</b>. No node here.`;
+      case "pick":
+        return `preorder[${s.pickedIdx}] = <b>${fmt(s.element)}</b> is consumed; idx advances to ${s.pickedIdx+1}.`;
+      case "found":
+        return `find() scans inorder from index 0 and locates <b>${fmt(s.element)}</b> at index <b>${s.foundIdx}</b> — ${s.foundIdx+1} comparisons this call.`;
+      case "create_node":
+        return `A new node <b>${fmt(s.element)}</b> is created — root of this subtree.`;
+      case "attach_left":
+        return s.leftNode==null ? `Node <b>${fmt(f.element)}</b>'s left child is <b>NULL</b>.`
+                                  : `Node <b>${fmt(f.element)}</b>'s left subtree is attached.`;
+      case "attach_right":
+        return s.rightNode==null ? `Node <b>${fmt(f.element)}</b>'s right child is <b>NULL</b>.`
+                                   : `Node <b>${fmt(f.element)}</b>'s right subtree is attached.`;
+      case "return":
+        return `construct() returns node <b>${fmt(f.element)}</b> to its caller.`;
+    }
+    return "";
+  }
+
+  /* ============================================================
+     5. DOM REFS
+     ============================================================ */
+  const els = {
+    preorderInput: document.getElementById("preorderInput"),
+    inorderInput: document.getElementById("inorderInput"),
+    buildBtn: document.getElementById("buildBtn"),
+    exampleBtn: document.getElementById("exampleBtn"),
+    inputError: document.getElementById("inputError"),
+    preorderArray: document.getElementById("preorderArray"),
+    inorderArray: document.getElementById("inorderArray"),
+    scanCursor: document.getElementById("scanCursor"),
+    inorderHint: document.getElementById("inorderHint"),
+    callStack: document.getElementById("callStack"),
+    treeSvg: document.getElementById("treeSvg"),
+    narration: document.getElementById("narration"),
+    scrubber: document.getElementById("scrubber"),
+    stepCounter: document.getElementById("stepCounter"),
+    prevBtn: document.getElementById("prevBtn"),
+    nextBtn: document.getElementById("nextBtn"),
+    playBtn: document.getElementById("playBtn"),
+    resetBtn: document.getElementById("resetBtn"),
+    speedSelect: document.getElementById("speedSelect"),
+    statCalls: document.getElementById("statCalls"),
+    statComparisons: document.getElementById("statComparisons"),
+  };
+
+  let currentIndex = -1;
+  let playing = false;
+  let playTimer = null;
+  let nodeEls = {};
+  let edgeEls = {};
+  let svgGeom = {w:800, h:360, colWidth:80, margin:60, rowH:110, n:1};
+
+  /* ============================================================
+     6. ARRAY PANELS
+     ============================================================ */
+  function buildArrayBoxes(){
+    els.preorderArray.innerHTML = "";
+    preorderVals.forEach((v,i)=>{
+      const c = document.createElement("div");
+      c.className = "cell";
+      c.id = "pre-"+i;
+      c.innerHTML = `${v}<span class="idx">${i}</span>`;
+      els.preorderArray.appendChild(c);
+    });
+
+    els.inorderArray.innerHTML = "";
+    const cursor = document.createElement("div");
+    cursor.className = "scan-cursor";
+    cursor.id = "scanCursor";
+    els.inorderArray.appendChild(cursor);
+    inorderVals.forEach((v,i)=>{
+      const c = document.createElement("div");
+      c.className = "cell";
+      c.id = "in-"+i;
+      c.innerHTML = `${v}<span class="idx">${i}</span>`;
+      els.inorderArray.appendChild(c);
+    });
+  }
+
+  function renderArrays(state){
+    // preorder
+    preorderVals.forEach((v,i)=>{
+      const c = document.getElementById("pre-"+i);
+      c.classList.remove("used","pointer","picked");
+      if (i < state.preorderPtr) c.classList.add("used");
+      if (i === state.preorderPtr) c.classList.add("pointer");
+      if (state.lastStep && state.lastStep.type==="pick" && state.lastStep.pickedIdx===i) c.classList.add("picked");
+    });
+
+    // active frame for inorder window
+    let win = null, foundIdx = null;
+    if (state.lastStep){
+      const f = state.frames[state.lastStep.callId];
+      if (f) { win = [f.start, f.end]; foundIdx = f.foundIdx; }
+    }
+    inorderVals.forEach((v,i)=>{
+      const c = document.getElementById("in-"+i);
+      c.classList.remove("in-window","out-window","split","left-half","right-half");
+      if (!win){ return; }
+      if (i < win[0] || i > win[1]) { c.classList.add("out-window"); return; }
+      c.classList.add("in-window");
+      if (foundIdx !== null && i === foundIdx) c.classList.add("split");
+      else if (foundIdx !== null && i < foundIdx) c.classList.add("left-half");
+      else if (foundIdx !== null && i > foundIdx) c.classList.add("right-half");
+    });
+
+    els.inorderHint.textContent = win ? `[${win[0]}, ${win[1]}] active range` : "[start, end] of active call";
+
+    // scan sweep animation on a 'found' step
+    const cursorEl = document.getElementById("scanCursor");
+    if (state.lastStep && state.lastStep.type === "found" && foundIdx !== null){
+      cursorEl.style.transition = "none";
+      cursorEl.style.left = "0px";
+      cursorEl.classList.add("sweeping");
+      requestAnimationFrame(()=>{
+        const target = document.getElementById("in-"+foundIdx);
+        if (target){
+          cursorEl.style.transition = "left .42s cubic-bezier(.2,.7,.3,1)";
+          cursorEl.style.left = target.offsetLeft + "px";
+        }
+      });
+      clearTimeout(cursorEl._fadeTimer);
+      cursorEl._fadeTimer = setTimeout(()=>{ cursorEl.classList.remove("sweeping"); }, 650);
+    }
+  }
+
+  /* ============================================================
+     7. CALL STACK PANEL
+     ============================================================ */
+  const DEPTH_COLORS = ["#f2b94b","#4fd6c0","#b18cf7","#f0707a","#5db1f0","#e7edf3"];
+
+  function renderStack(state){
+    if (state.stack.length === 0){
+      els.callStack.innerHTML = '<div class="empty-note">— no active calls —</div>';
+      return;
+    }
+    els.callStack.innerHTML = state.stack.map((cid, i)=>{
+      const f = state.frames[cid];
+      const isTop = i === state.stack.length - 1;
+      const color = DEPTH_COLORS[f.depth % DEPTH_COLORS.length];
+      const elemPart = f.element !== null ? ` <span class="elem" style="color:${color}">${f.element}</span>` : "";
+      return `<div class="frame ${isTop ? "top" : ""}" style="border-left:3px solid ${color}">
+        <span class="range">construct(${f.start}, ${f.end})${elemPart}</span>
+        <span>d${f.depth}</span>
+      </div>`;
+    }).join("");
+  }
+
+  /* ============================================================
+     8. TREE SVG  (positions: x = inorder index, y = depth)
+     ============================================================ */
+  function computeGeometry(){
+    const n = Math.max(1, inorderVals.length);
+    let maxDepth = 0;
+    steps.forEach(s=>{ if (s.type==="call" && s.depth > maxDepth) maxDepth = s.depth; });
+    const margin = 50;
+    const colWidth = n > 1 ? (Math.max(560, n*110) - 2*margin) / (n-1) : 0;
+    const w = Math.max(560, n*110);
+    const rowH = 100;
+    const h = (maxDepth+1)*rowH + 2*margin;
+    svgGeom = {w, h, colWidth, margin, rowH, n};
+    els.treeSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  }
+
+  function px(x){ return svgGeom.margin + x * svgGeom.colWidth; }
+  function py(y){ return svgGeom.margin + y * svgGeom.rowH; }
+
+  function ensureLayer(id){
+    let g = els.treeSvg.querySelector("#"+id);
+    if (!g){
+      g = document.createElementNS("http://www.w3.org/2000/svg","g");
+      g.id = id;
+      els.treeSvg.appendChild(g);
+    }
+    return g;
+  }
+
+  function renderTree(state){
+    const edgeLayer = ensureLayer("edgeLayer");
+    const nodeLayer = ensureLayer("nodeLayer");
+    els.treeSvg.appendChild(edgeLayer);
+    els.treeSvg.appendChild(nodeLayer);
+
+    const activeCallId = state.lastStep ? state.lastStep.callId : null;
+    const activeNodeId = activeCallId !== null && state.frames[activeCallId] ? state.frames[activeCallId].nodeId : null;
+
+    // --- nodes ---
+    const wantedNodeIds = Object.keys(state.nodes).map(Number);
+    Object.keys(nodeEls).map(Number).forEach(id=>{
+      if (!wantedNodeIds.includes(id)){ nodeEls[id].remove(); delete nodeEls[id]; }
+    });
+    wantedNodeIds.forEach(id=>{
+      const nd = state.nodes[id];
+      let g = nodeEls[id];
+      if (!g){
+        g = document.createElementNS("http://www.w3.org/2000/svg","g");
+        g.setAttribute("class","node-enter");
+        g.innerHTML = `<circle class="node-circle" cx="${px(nd.x)}" cy="${py(nd.y)}" r="24"></circle>
+                        <text class="node-text" x="${px(nd.x)}" y="${py(nd.y)+1}">${nd.element}</text>`;
+        nodeLayer.appendChild(g);
+        nodeEls[id] = g;
+      }
+      const circle = g.querySelector("circle");
+      circle.classList.toggle("active", id === activeNodeId);
+    });
+
+    // --- edges ---
+    const wantedEdgeKeys = [];
+    wantedNodeIds.forEach(id=>{
+      const nd = state.nodes[id];
+      if (nd.left !== undefined && nd.left !== null) wantedEdgeKeys.push(id+"-"+nd.left);
+      if (nd.right !== undefined && nd.right !== null) wantedEdgeKeys.push(id+"-"+nd.right);
+    });
+    Object.keys(edgeEls).forEach(key=>{
+      if (!wantedEdgeKeys.includes(key)){ edgeEls[key].remove(); delete edgeEls[key]; }
+    });
+    wantedEdgeKeys.forEach(key=>{
+      if (edgeEls[key]) return;
+      const [p,c] = key.split("-").map(Number);
+      const pn = state.nodes[p], cn = state.nodes[c];
+      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      line.setAttribute("class","edge-line edge-enter");
+      line.setAttribute("x1", px(pn.x)); line.setAttribute("y1", py(pn.y));
+      line.setAttribute("x2", px(cn.x)); line.setAttribute("y2", py(cn.y));
+      edgeLayer.appendChild(line);
+      edgeEls[key] = line;
+    });
+  }
+
+  /* ============================================================
+     9. MASTER RENDER
+     ============================================================ */
+  function render(){
+    const state = computeState(currentIndex);
+    renderArrays(state);
+    renderStack(state);
+    renderTree(state);
+
+    els.narration.innerHTML = narrate(state);
+    els.statCalls.textContent = state.totalCalls;
+    els.statComparisons.textContent = state.comparisons;
+    els.scrubber.value = currentIndex;
+    els.stepCounter.textContent = `${currentIndex+1} / ${steps.length}`;
+    els.prevBtn.disabled = currentIndex <= -1;
+    els.nextBtn.disabled = currentIndex >= steps.length-1;
+
+    if (state.lastStep){
+      const scanning = state.lastStep.type === "found";
+      highlightLine(LINE_FOR_STEP[state.lastStep.type], scanning);
+    } else {
+      highlightLine(null, false);
+    }
+  }
+
+  /* ============================================================
+     10. NAVIGATION + PLAYBACK
+     ============================================================ */
+  function goTo(i){
+    currentIndex = Math.max(-1, Math.min(steps.length-1, i));
+    render();
+  }
+  function next(){ if (currentIndex < steps.length-1) goTo(currentIndex+1); else stop(); }
+  function prev(){ goTo(currentIndex-1); }
+
+  function play(){
+    if (currentIndex >= steps.length-1) currentIndex = -1;
+    playing = true;
+    els.playBtn.textContent = "⏸";
+    tick();
+  }
+  function tick(){
+    if (!playing) return;
+    if (currentIndex >= steps.length-1){ stop(); return; }
+    goTo(currentIndex+1);
+    playTimer = setTimeout(tick, parseInt(els.speedSelect.value,10));
+  }
+  function stop(){
+    playing = false;
+    els.playBtn.textContent = "▶";
+    clearTimeout(playTimer);
+  }
+  function togglePlay(){ playing ? stop() : play(); }
+
+  /* ============================================================
+     11. BUILD / VALIDATE INPUT
+     ============================================================ */
+  function parseList(str){
+    return str.split(",").map(s=>s.trim()).filter(s=>s.length>0);
+  }
+
+  function validate(pre, ino){
+    if (pre.length === 0) return "Enter at least one value.";
+    if (pre.length !== ino.length) return "preorder and inorder must be the same length.";
+    const a = pre.slice().sort().join(",");
+    const b = ino.slice().sort().join(",");
+    if (a !== b) return "preorder and inorder must contain the same elements.";
+    if (new Set(pre).size !== pre.length) return "Duplicate values aren't supported by find() — use unique elements.";
+    return null;
+  }
+
+  function build(){
+    stop();
+    const pre = parseList(els.preorderInput.value);
+    const ino = parseList(els.inorderInput.value);
+    const err = validate(pre, ino);
+    if (err){ els.inputError.textContent = err; return; }
+    els.inputError.textContent = "";
+
+    preorderVals = pre;
+    inorderVals = ino;
+    steps = buildSteps(pre, ino);
+
+    nodeEls = {}; edgeEls = {};
+    els.treeSvg.innerHTML = "";
+    computeGeometry();
+    buildArrayBoxes();
+
+    els.scrubber.min = -1;
+    els.scrubber.max = steps.length-1;
+    currentIndex = -1;
+    render();
+  }
+
+  /* ============================================================
+     12. WIRE UP
+     ============================================================ */
+  renderCode();
+  els.buildBtn.addEventListener("click", build);
+  els.exampleBtn.addEventListener("click", ()=>{
+    els.preorderInput.value = "3,9,20,15,7";
+    els.inorderInput.value = "9,3,15,20,7";
+    build();
+  });
+  els.nextBtn.addEventListener("click", ()=>{ stop(); next(); });
+  els.prevBtn.addEventListener("click", ()=>{ stop(); prev(); });
+  els.playBtn.addEventListener("click", togglePlay);
+  els.resetBtn.addEventListener("click", ()=>{ stop(); goTo(-1); });
+  els.scrubber.addEventListener("input", (e)=>{ stop(); goTo(parseInt(e.target.value,10)); });
+  document.addEventListener("keydown", (e)=>{
+    if (e.target.tagName === "INPUT") return;
+    if (e.key === "ArrowRight"){ stop(); next(); }
+    if (e.key === "ArrowLeft"){ stop(); prev(); }
+    if (e.key === " "){ e.preventDefault(); togglePlay(); }
+  });
+
+  build();
+})();
+</script>
+</body>
+</html>
