@@ -1,3 +1,28 @@
+"""
+Given a binary tree, a target node, and an integer K, 
+return all nodes that are at distance K from the target node.
+
+         4
+        /
+       2
+      / \
+     5   10
+      \  / \
+      89 50 3
+            / \
+           6   5
+k = 2
+node 5:
+
+Distance 0 : 5
+Distance 1 : 89, 2
+Distance 2 : 4, 10
+
+Output:
+[4, 10]
+
+"""
+
 class TreeNode:
     def __init__(self,val=0,left=None,right = None):
         self.val = val
