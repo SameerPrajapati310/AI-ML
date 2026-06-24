@@ -1,3 +1,26 @@
+"""Given a binary tree and a target node value, return the"
+ path from the root node to the target node.
+ 
+ Input:
+        1
+       / \
+      2   3
+     / \
+    4   5
+       / \
+      6   7
+
+target = 7
+
+Output:
+[1, 2, 5, 7]
+ 
+
+ """
+
+
+
+
 class TreeNode:
     def __init__(self,val=0,left=None,right=None):
         self.val = val
