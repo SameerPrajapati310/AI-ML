@@ -27,6 +27,7 @@ class VerticalView:
 
 
 """        
+
         2
     3       4
 5        3       6

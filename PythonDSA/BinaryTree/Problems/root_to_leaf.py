@@ -1,5 +1,6 @@
-"""Given a binary tree and a target node value, return the"
- path from the root node to the target node.
+"""
+Given a binary tree and a target node value, return the"
+path from the root node to the target node.
  
  Input:
         1
