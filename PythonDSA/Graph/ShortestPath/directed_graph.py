@@ -46,6 +46,7 @@ def toppo(node,adj,visited,s):
             toppo(it,adj,visited,s)
     print(node)
     s.push(node)
+
 s = stack()
 visited = [0]*len(adj)
 distance = [float('inf')]*len(adj)
