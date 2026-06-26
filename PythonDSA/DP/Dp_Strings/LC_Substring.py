@@ -20,7 +20,42 @@
 
 # obj = LC_String()
 # print(obj.lcs(s1, s2))
+"""
+Finds the length of the Longest Common Substring (LCS) between two strings
+using Dynamic Programming (Tabulation).
 
+A common substring is a sequence of consecutive characters that appears
+contiguously in both strings. Unlike the Longest Common Subsequence,
+characters must be adjacent.
+
+Algorithm:
+1. Create a DP table of size (m + 1) x (n + 1), initialized with 0.
+2. Iterate through both strings:
+   - If the current characters match:
+         dp[i][j] = 1 + dp[i-1][j-1]
+     Update the maximum substring length found.
+   - Otherwise:
+         dp[i][j] = 0
+     since a substring must be continuous.
+3. Return the maximum value stored during computation.
+
+Example:
+    s1 = "abcfree"
+    s2 = "abfreeec"
+
+    Longest Common Substring = "free"
+    Length = 4
+
+Time Complexity:
+    O(m × n)
+
+Space Complexity:
+    O(m × n)
+
+where:
+    m = length of s1
+    n = length of s2
+"""
 class tab_lc:
     def find(self,s1,s2):
         m = len(s1)

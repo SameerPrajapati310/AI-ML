@@ -1,6 +1,50 @@
 """
-DP table
+Finds the Longest Common Subsequence (LCS) of two strings using
+Dynamic Programming (Tabulation) and reconstructs the LCS string.
+
+A subsequence is formed by deleting zero or more characters from a string
+without changing the order of the remaining characters. Unlike a substring,
+the characters do not need to be contiguous.
+
+Algorithm:
+1. Create a DP table of size (m + 1) x (n + 1), initialized with 0.
+2. Fill the table:
+   - If characters match:
+         dp[i][j] = 1 + dp[i-1][j-1]
+   - Otherwise:
+         dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+3. The value at dp[m][n] gives the length of the LCS.
+4. Reconstruct the LCS by backtracking from dp[m][n]:
+   - If characters match, include the character and move diagonally.
+   - Otherwise, move in the direction of the larger neighboring value.
+5. Reverse the collected characters to obtain the final LCS.
+
+Example:
+    Input:
+        s1 = "abc"
+        s2 = "ebc"
+
+    DP Table:
+          e  b  c
+       0  0  0  0
+    a  0  0  0  0
+    b  0  0  1  1
+    c  0  0  1  2
+
+    LCS = "bc"
+    Length = 2
+
+Time Complexity:
+    O(m × n)
+
+Space Complexity:
+    O(m × n)
+
+where:
+    m = length of s1
+    n = length of s2
 """
+
 # class LCS:
 #     def find(self,m,n,s1,s2,dp):
 #         if m == 0 or n == 0:

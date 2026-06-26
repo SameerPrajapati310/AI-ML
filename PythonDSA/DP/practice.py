@@ -1,47 +1,20 @@
-class Lcsubstring:
-    def find(self,m,n,s,t,dp):
-        if m < 0 or n < 0:
-            return 0
-        if dp[m][n] != -1:
-            return dp[m][n]  
+class Solution:
+    def find(self,n,arr,k):
+        if k == 0:
+            return True
+        if n == 0:
+            return arr[n] == k
 
-        if s[m] == t[n]:
-            dp[m][n] = 1 + self.find(m-1,n-1,s,t,dp)
-            return dp[m][n]
-        dp[m][n] = max(self.find(m-1,n,s,t,dp),self.find(m,n-1,s,t,dp))
-        return dp[m][n]
+        notake = self.find(n-1,arr,k)
+        take = False
+        if arr[n] <= k:
+            take = self.find(n-1,arr,k-arr[n])
+        ans = take or notake
+        return ans
 
-        
-    def lcs(self,s,t):
-        m = len(s)
-        n = len(t)
-        dp = [[-1 for _ in range(n+1)] for _ in range(m+1) ]
-        for it in dp:
-            print(it)
-        print("+++++++++")
-        for i in range(m+1):
-            dp[i][0] = 0
-        for j in range(n+1):
-            dp[0][j] = 0
+arr = [4,3,5,2]
+k = 100
 
-        for i in range(1,m+1):
-            for j in range(1,n+1):
-                if s[i-1] == t[j-1]:
-                    dp[i][j] = 1 + dp[i-1][j-1]
-                else:
-                    dp[i][j] = max(dp[i-1][j],dp[i][j-1])
-
-        for it in dp:
-            print(it)
-        return dp[m][n]
-
-
-
-s1 = "awbct"
-s2 = "abewc"
-
-ans = Lcsubstring()
-
-
-print(ans.lcs(s1,s2))
+ans = Solution()
+print(ans.find(len(arr)-1,arr,k))
 

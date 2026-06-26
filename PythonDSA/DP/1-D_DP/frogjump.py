@@ -35,6 +35,19 @@ Constraints:
     1 <= height[i] <= 10^4
 """
 
+class Solution:
+    def find(self,n,height,dp):
+        if n < 0 :
+            return float('inf')
+        if n == 0:
+            return 0
+        if dp[n] != -1:
+            return dp[n]
+        one = self.find(n-1,height,dp) + abs(height[n]-height[n-1])
+        two = self.find(n-2,height,dp) + abs(height[n]-height[n-2])
+        dp[n] = min(one,two)
+        return dp[n]
+
 
 
 
@@ -42,20 +55,23 @@ height = [7, 5, 1, 2, 6]
 ans = float('inf')
 dp = [-1]*(len(height)+1)
 
-def find(n,height,dp):
-    if n == 0:
-        return 0
-    if n < 0 :
-        return float('inf')
-    if dp[n] != -1:
-        return dp[n]
+ans = Solution()
+print(ans.find(len(height)-1,height,dp))
+
+# def find(n,height,dp):
+#     if n == 0:
+#         return 0
+#     if n < 0 :
+#         return float('inf')
+#     if dp[n] != -1:
+#         return dp[n]
     
 
-    one = find(n-1,height,dp) + abs(height[n-1]-height[n])
-    two = find(n-2,height,dp) + abs(height[n-2]-height[n])
+#     one = find(n-1,height,dp) + abs(height[n-1]-height[n])
+#     two = find(n-2,height,dp) + abs(height[n-2]-height[n])
 
 
-    dp[n] = min(one,two)
-    return dp[n]
+#     dp[n] = min(one,two)
+#     return dp[n]
 
-print(find(4,height,dp))
+# print(find(4,height,dp))
