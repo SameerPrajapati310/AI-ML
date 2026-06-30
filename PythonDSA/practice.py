@@ -1,46 +1,48 @@
-matrix = [
-    [0, 1, 1, 0, 0, 1],
-    [0, 0, 1, 1, 0, 0],
-    [0, 0, 0, 1, 1, 0],
-    [0, 0, 0, 0, 1, 1],
-    [0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0]
+edges = [
+    [0, 1, 2],
+    [0, 2, 1],
+    [1, 2, 1],
+    [2, 3, 2],
+    [3, 4, 1],
+    [4, 2, 2]
 ]
+s = set()
+for i in range(len(edges)):
+    s.add(edges[i][0])
 
 adj = []
-n = len(matrix)
-m = len(matrix[0])
-for i in range(n):
-    row = []
-    for j in range(m):
-        if matrix[i][j] == 1:
-            row.append(j)
-    adj.append(row)
-print(adj)
+for _ in range(len(s)):
+    adj.append([])
 
-print('ADJ LIST')
 for i in range(len(adj)):
-    print(f'[{i}]->{adj[i]}')
+    u = edges[i][0]
+    v = edges[i][1]
+    wt = edges[i][2]
+    adj[u].append((v,wt))
 
+class Solution:
+    def __init__(self,n):
+        self.parent = []
+        self.rank = [0]*n
+        for i in range(n):
+            self.parent.append(i)
+    def findUparent(self,node):
+        if node == self.parent[node]:
+            return node
+        self.parent[node] = self.findUparent(self.parent[node])
+        return self.parent[node]
+    def Union(self,u,v):
+        ulp_u = self.findUparent(u)
+        ulp_v = self.findUparent(v)
+        if ulp_u == ulp_v:
+            return 
+        if self.rank[ulp_u] < self.rank[ulp_v]:
+            self.parent[ulp_u] = ulp_v
 
-indegree = [0]*len(adj)
-
-visited = [0]*len(adj)
-
-for i in adj:
-    for it in i:
-        indegree[it] += 1
-from collections import deque
-q = deque()
-for i in range(len(indegree)):
-    if indegree[i] == 0:
-        q.append(i)
-ans = []
-while q:
-    node = q.popleft()
-    ans.append(node)
-    for it in adj[node]:
-        indegree[it] -= 1
-        if indegree[it] == 0:
-            q.append(it)
-print(ans)
+        elif self.rank[ulp_u] > self.rank[ulp_v]:
+            self.parent[ulp_v] = ulp_u         
+        else:
+            self.parent[ulp_u] = ulp_v
+            self.rank[ulp_v] += 1
+        
+        
