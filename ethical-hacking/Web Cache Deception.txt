@@ -1,0 +1,98 @@
+"""
+Example of a Web Cache Deception Attack (Hypothetical)
+
+Assume there is a vulnerable website:
+
+    https://example.com/in/sanjay/
+
+Normal request:
+
+    GET /in/sanjay/
+
+The origin server returns Sanjay's profile page.
+
+------------------------------------------------------------
+
+The attacker notices that the origin server treats the following URLs
+as the same resource:
+
+    /in/sanjay/
+    /in/sanjay/test.css
+
+However, the cache has a rule that says:
+
+    "Cache any URL ending with .css"
+
+This creates a parsing mismatch:
+
+Cache interpretation:
+    "/in/sanjay/test.css"
+    -> Static CSS file
+    -> Safe to cache
+
+Origin server interpretation:
+    "/in/sanjay/test.css"
+    -> Ignore the extra path segment
+    -> Resolve to "/in/sanjay/"
+    -> Return the profile page
+
+------------------------------------------------------------
+
+Attack flow
+
+Step 1:
+The attacker sends the following URL to Sanjay:
+
+    https://example.com/in/sanjay/test.css
+
+Step 2:
+Sanjay is logged in and clicks the link.
+
+Step 3:
+The origin server resolves the request to:
+
+    /in/sanjay/
+
+and returns Sanjay's personalized profile page.
+
+Step 4:
+The cache incorrectly believes the request was for a static CSS file
+because the URL ends with ".css", so it stores the response.
+
+Cache now contains:
+
+    /in/sanjay/test.css
+        ->
+    Sanjay's personalized profile page
+
+Step 5:
+Before the cache entry expires, the attacker requests:
+
+    https://example.com/in/sanjay/test.css
+
+Instead of forwarding the request to the origin server, the cache serves
+the stored response.
+
+As a result, the attacker receives Sanjay's cached profile page.
+
+------------------------------------------------------------
+
+Important Notes
+
+1. This attack only works if:
+   - The origin server treats "/test.css" as the same resource.
+   - The cache considers ".css" cacheable.
+   - The response is mistakenly cached despite containing
+     user-specific content.
+
+2. Modern websites usually prevent this by:
+   - Returning 404 for unexpected paths.
+   - Using "Cache-Control: private" or "Cache-Control: no-store".
+   - Configuring CDNs and reverse proxies to never cache
+     authenticated responses.
+
+3. LinkedIn is used only as an illustrative example. It is not
+   appropriate to test or assume that LinkedIn behaves this way.
+   Practice these techniques only in authorized environments such as
+   PortSwigger Web Security Academy labs or applications you own.
+"""

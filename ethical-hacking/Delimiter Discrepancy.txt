@@ -1,0 +1,198 @@
+"""
+Delimiter Discrepancy (Language / Framework Dependent)
+=====================================================
+
+A delimiter is a special character that tells the ORIGIN SERVER where the
+meaningful part of the URL ends.
+
+The important point is:
+
+    Different programming languages, web frameworks, and servers interpret
+    delimiters differently.
+
+Therefore, the same URL can be interpreted differently by:
+
+    1. The Origin Server
+    2. The Cache (CDN / Reverse Proxy)
+
+This mismatch can lead to a Web Cache Deception vulnerability.
+
+------------------------------------------------------------
+Example
+------------------------------------------------------------
+
+URL:
+
+    /my-account;foo.css
+
+------------------------------------------------------------
+Cache Interpretation
+------------------------------------------------------------
+
+The cache does NOT treat ';' as a delimiter.
+
+It sees:
+
+    /my-account;foo.css
+
+Since the URL ends with ".css", the cache thinks:
+
+    "This is a static CSS file."
+
+Therefore, it caches the response.
+
+------------------------------------------------------------
+Origin Server Interpretation
+------------------------------------------------------------
+
+Suppose the origin server is built using Java Spring.
+
+Spring treats ';' as a delimiter (used for Matrix Variables).
+
+So it interprets:
+
+    /my-account;foo.css
+
+as
+
+    /my-account
+
+The server ignores:
+
+    ;foo.css
+
+and returns the authenticated user's account page.
+
+------------------------------------------------------------
+Result
+------------------------------------------------------------
+
+Cache stores:
+
+    /my-account;foo.css
+
+↓
+
+But the response actually contains:
+
+    Username
+    Email
+    API Key
+
+Instead of CSS.
+
+This creates a Web Cache Deception vulnerability.
+
+------------------------------------------------------------
+Why is this Language / Framework Dependent?
+------------------------------------------------------------
+
+Every framework has different URL parsing rules.
+
+Example:
+
+Java Spring
+------------
+Delimiter:
+
+    ;
+
+Request:
+
+    /profile;foo.css
+
+Server interprets:
+
+    /profile
+
+------------------------------------------------------------
+
+Ruby on Rails
+-------------
+Uses '.' to determine response format.
+
+Request:
+
+    /profile.json
+
+↓
+
+Return JSON
+
+Request:
+
+    /profile.ico
+
+↓
+
+If ".ico" isn't a recognized format,
+Rails may fall back to the default HTML handler.
+
+------------------------------------------------------------
+
+OpenLiteSpeed
+-------------
+Uses the encoded NULL character:
+
+    %00
+
+Example:
+
+    /profile%00foo.js
+
+↓
+
+Server interprets:
+
+    /profile
+
+------------------------------------------------------------
+
+FastAPI
+--------
+By default, FastAPI does NOT treat ';' as a delimiter.
+
+Request:
+
+    /my-account;foo.css
+
+↓
+
+404 Not Found
+
+unless the developer has written custom routing or middleware.
+
+------------------------------------------------------------
+Key Idea
+------------------------------------------------------------
+
+A delimiter discrepancy exists when:
+
+    Origin Server:
+        Treats a character as a delimiter.
+
+    Cache:
+        Treats the same character as part of the URL.
+
+Because both components interpret the same URL differently,
+the cache may mistakenly store a dynamic response as if it
+were a static resource.
+
+------------------------------------------------------------
+Remember
+------------------------------------------------------------
+
+Delimiter behavior is NOT universal.
+
+It depends entirely on:
+
+    - Programming language
+    - Web framework
+    - Web server
+    - Reverse proxy
+    - CDN
+
+Therefore, penetration testers never assume a delimiter exists.
+Instead, they test different characters (such as ';', '.', or '%00')
+to discover how the specific application and cache parse URLs.
+"""
