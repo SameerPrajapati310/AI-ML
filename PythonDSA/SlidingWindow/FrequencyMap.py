@@ -14,6 +14,6 @@ class Solution:
             maxi = max(maxi,j-i+1)
             j+=1
         return maxi
-s = "abcabcbb"
+s = "abcofgabcbb"
 ans = Solution()
 print(ans.lengthOfLongestSubstring(s))

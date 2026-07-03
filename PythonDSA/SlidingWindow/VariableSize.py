@@ -17,6 +17,9 @@ class Solution:
         return final
 
 
+
+
+
 arr = [1,3,5,2,1,2,1]
 k = 8
 ans = Solution()
