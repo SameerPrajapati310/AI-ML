@@ -1,6 +1,4 @@
 import heapq
-
-
 class Solution:
     def KthSorted(self,arr,k):
         heap = []

@@ -1,0 +1,199 @@
+/* App.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f4f6f9;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.input-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.input-section input {
+  width: 80px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.input-section button,
+.create-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #4a90e2;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.input-section button:hover,
+.create-button:hover {
+  background-color: #357abd;
+}
+
+.matrix-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.matrix-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.matrix-cell {
+  width: 45px;
+  height: 45px;
+  background-color: #e9eef5;
+  border: 1px solid #c7d2e2;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.matrix-input {
+    width: 45px;
+    height: 45px;
+    border: 1px solid #c7d2e2;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 16px;
+    outline: none;
+  }
+  
+  .matrix-input:focus {
+    border-color: #4a90e2;
+  }
+
+  .container {
+    padding: 30px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .title {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .input-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .input-section input {
+    padding: 10px;
+    width: 120px;
+  }
+  
+  .create-button,
+  .adj-button {
+    padding: 10px 20px;
+    margin-top: 15px;
+    margin-right: 10px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .matrix-container {
+    margin-top: 20px;
+  }
+  
+  .matrix-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .matrix-input {
+    width: 60px;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .graph-container {
+    margin-top: 40px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  .graph-node {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .node-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #2563eb;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 20px;
+  }
+  
+  .neighbor-list {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .neighbor-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #16a34a;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .no-neighbor {
+    color: #888;
+    font-style: italic;
+  }
