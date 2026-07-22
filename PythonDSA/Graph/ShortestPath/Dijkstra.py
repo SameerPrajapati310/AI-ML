@@ -1,5 +1,7 @@
 # Graph has weights
-# All weights are non-negative
+# Can work with directed and not directed graph.
+# Can work for non cyclic graph.
+# All weights are non-negative.
 
 import heapq
 

@@ -2,6 +2,19 @@
 # Works with:
 # Positive weights 
 # Negative weights 
+
+
+"""
+| Feature          | DAG Shortest Path                      | Dijkstra                                      |
+| ---------------- | -------------------------------------- | --------------------------------------------- |
+| Graph Type       | **Directed Acyclic Graph (DAG)** only  | Any graph (directed/undirected)               |
+| Negative Weights | ✅ Yes                                  | ❌ No                                          |
+| Cycles Allowed   | ❌ No                                   | ✅ Yes                                         |
+| Main Idea        | Process nodes in **topological order** | Always process the **closest unvisited node** |
+| Data Structure   | Stack (topological sort)               | Min Heap (Priority Queue)                     |
+| Time Complexity  | **O(V + E)**                           | **O((V + E) log V)**                          |
+
+"""
 edges = [[0,4,2], [0,5,3], [5,4,1], [4,6,3], [4,2,1], [6,1,2], [2,3,3], [1,3,1]]
 n = 7
 
@@ -57,8 +70,9 @@ toppo(0,adj,visited,s)
 
 while s.size()>0:
     node = s.pop()
-    for it,wt in adj[node]:
-        if distance[node] + wt  < distance[it]:
+    wt = distance[node] #Dijkstra me ye value mai PQ me append kr raha hu but isme nahi kr skta.
+    for it,new_wt in adj[node]:
+        if wt + new_wt  < distance[it]:  
             distance[it] = distance[node] + wt 
 
 print(distance)
