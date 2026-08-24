@@ -1,0 +1,3 @@
+Hello, World! Welcome to my new Google Document.
+	Rendering Image Document: [path/to/image.png]
+This is a new paragraph.
